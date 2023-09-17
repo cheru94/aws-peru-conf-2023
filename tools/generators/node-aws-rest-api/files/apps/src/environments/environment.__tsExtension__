@@ -1,0 +1,11 @@
+export const environment = {
+  production: false,
+  database: {
+    loggin: false,
+    databaseType: 'memory',
+    username: '',
+    password: '',
+    host: '',
+    name: ''
+  }
+};

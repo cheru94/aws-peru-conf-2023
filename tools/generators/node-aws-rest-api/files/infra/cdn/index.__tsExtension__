@@ -1,0 +1,130 @@
+
+  // CloudFront distribution to serve S3 Bucket website, API, Web-Report
+  let cdn = new aws.cloudfront.Distribution("cdn", {
+    enabled: true,
+    waitForDeployment: false,
+    defaultCacheBehavior: {
+      targetOriginId: siteBucket.arn,
+      viewerProtocolPolicy: "allow-all",
+      allowedMethods: ["GET", "HEAD", "OPTIONS"],
+      cachedMethods: ["GET", "HEAD", "OPTIONS"],
+      forwardedValues: {
+        cookies: { forward: "none" },
+        queryString: false,
+      }
+    },
+    origins: [
+      {
+        originId: siteBucket.arn,
+        domainName: siteBucket.websiteEndpoint,
+        customOriginConfig: {
+          originProtocolPolicy: "http-only",
+          httpPort: 80,
+          httpsPort: 443,
+          originSslProtocols: ['TLSv1.2']
+        },
+      },
+      {
+        originId: API_ALB_ARN,
+        domainName: API_ALB_NAME,
+        customOriginConfig: {
+          originProtocolPolicy: "http-only",
+          httpPort: 80,
+          httpsPort: 443,
+          originSslProtocols: ['TLSv1.2']
+        },
+      },
+      {
+        originId: WEB_REPORT_SSR_ALB_ARN,
+        domainName: WEB_REPORT_SSR_ALB_NAME,
+        customOriginConfig: {
+
+          originProtocolPolicy: "http-only",
+          httpPort: 80,
+          httpsPort: 443,
+          originSslProtocols: ['TLSv1.2']
+        },
+      },
+    ],
+    orderedCacheBehaviors: [
+      {
+        pathPattern: "/web-report*",
+        targetOriginId: WEB_REPORT_SSR_ALB_ARN,
+        viewerProtocolPolicy: "https-only",
+        allowedMethods: [
+          "GET",
+          "HEAD",
+          "OPTIONS",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        cachedMethods: [
+          "GET",
+          "HEAD",
+        ],
+        compress: true,
+        forwardedValues: {
+          cookies: { forward: "all" },
+          queryString: true,
+          headers: ['*']
+        }
+      },
+      {
+        pathPattern: "/api/*",
+        targetOriginId: API_ALB_ARN,
+        viewerProtocolPolicy: "https-only",
+        allowedMethods: [
+          "GET",
+          "HEAD",
+          "OPTIONS",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE"
+        ],
+        cachedMethods: [
+          "GET",
+          "HEAD",
+        ],
+        compress: true,
+        forwardedValues: {
+          cookies: { forward: "all" },
+          queryString: true,
+          headers: ['*']
+        }
+      },
+      {
+        pathPattern: "/apidocs*",
+        targetOriginId: API_ALB_ARN,
+        viewerProtocolPolicy: "https-only",
+        allowedMethods: [
+          "GET",
+          "HEAD",
+          "OPTIONS"
+        ],
+        cachedMethods: [
+          "GET",
+          "HEAD",
+          "OPTIONS"
+        ],
+        compress: true,
+        forwardedValues: {
+          cookies: { forward: "all" },
+          queryString: true,
+          headers: ['*']
+        }
+      },
+    ],
+    priceClass: "PriceClass_100",
+    restrictions: {
+      geoRestriction: {
+        restrictionType: "none",
+      },
+    },
+    viewerCertificate: {
+      cloudfrontDefaultCertificate: true,
+    }
+  });
+

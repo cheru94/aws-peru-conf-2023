@@ -1,0 +1,14 @@
+import { Controller, Get } from '@nestjs/common';
+import { HealthCheckService } from '@<%=npmScope%>/<%=directoryImports%>services';
+
+@Controller('health')
+export class HealthController {
+  constructor(
+    private healthCheckService: HealthCheckService
+  ) {}
+
+  @Get()
+  check() {
+    return this.healthCheckService.httpCheck();
+  }
+}

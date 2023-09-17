@@ -1,0 +1,23 @@
+
+  
+  function createRDSInfra() {
+    const db = new aws.rds.Instance(`${appShortName}-rds-${NODE_ENV}`, {
+      engine: 'mysql',
+      engineVersion: '8.0.33', // MySQL version
+      username: 'root', // Username used to connect to database
+      instanceClass: NODE_ENV === 'prod' ? 'db.t3.small' : 'db.t2.micro',
+      allocatedStorage: 20,
+      maxAllocatedStorage: 100,
+      manageMasterUserPassword: true,
+      backupRetentionPeriod: 7, // Retain your daily backups for 1 week
+      publiclyAccessible: true,
+      multiAz: false,
+      skipFinalSnapshot: true,
+      name: `${appShortName}_rds_${NODE_ENV}`,
+    });
+  
+    // Export the endpoint so we can easily connect to our database later
+    exports.dbHost = db.address;
+  
+    return db;
+  }

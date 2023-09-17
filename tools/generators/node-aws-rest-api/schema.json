@@ -1,0 +1,119 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "node-aws-rest-api",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nombre del Servicio"
+    },
+    "dominio": {
+      "type": "string",
+      "description": "Nombre del bounded context"
+    },
+    "storage": {
+      "type": "boolean",
+      "description": "AWS S3 as storage service"
+    },
+    "auth": {
+      "type": "boolean",
+      "description": "AWS Cognito as Authentication service"
+    },
+    "database": {
+      "type": "string",
+      "description": "Servicios de base de datos AWS",
+      "x-prompt": {
+        "message": "Servicios de base de datos AWS",
+        "type": "list",
+        "default": "AWS RDS MySQL",
+        "enum": ["AWS RDS MySQL", "AWS RDS PostgreSQL", "AWS Aurora PostgreSQL", "AWS Aurora MySQL", "AWS DynamoDB"],
+        "items": [
+          {
+            "value": "AWS RDS MySQL",
+            "label": ""
+          },
+          {
+            "value": "AWS RDS MySQL",
+            "label": ""
+          },
+          {
+            "value": "AWS RDS MySQL",
+            "label": ""
+          },
+          {
+            "value": "AWS RDS PostgreSQL",
+            "label": ""
+
+          },
+          {
+            "value": "AWS Aurora PostgreSQL",
+            "label": ""
+
+          },
+          {
+            "value": "AWS Aurora MySQL",
+            "label": ""
+          },
+          {
+            "value": "AWS DynamoDB",
+            "label": ""
+          }
+        ]
+      }
+    },
+    "cdn": {
+      "type": "boolean",
+      "description": "Servicio CDN de AWS Cloudfront"
+    },
+    "waf": {
+      "type": "boolean",
+      "description": "WAF ACL in Cloudfront with basic rules"
+    },
+    "cache": {
+      "type": "boolean",
+      "description": "Servicio de cache AWS for DB"
+    },
+    "orchestration": {
+      "type": "string",
+      "description": "Un servicio de orquestación de AWS es ideal cuando necesita poder desplegar y administrar hasta miles de contenedores",
+      "x-prompt": {
+        "message": "Los servicios de orquestación de contenedores gestionan cuándo y dónde se ejecutan los contenedores",
+        "type": "list",
+        "default": "AWS ECS",
+        "enum": ["AWS ECS", "AWS EKS"],
+        "items": [{
+            "value": "AWS ECS",
+            "label": "Utilice este servicio de organización de contenedores totalmente gestionado para ayudar a desplegar gestionar y escalar aplicaciones contenerizadas"
+          },
+          {
+            "value": "AWS EKS",
+            "label": "Inicie, ejecute y escale aplicaciones de Kubernetes en la nube de AWS o de forma local"
+
+          }
+        ]
+      }
+    },
+    "capacity": {
+      "type": "string",
+      "description": "Cuando desee ejecutar sus contenedores en máquinas virtuales de AWS autogestionadas o en computación gestionada por AWS.",
+      "x-prompt": {
+        "message": "La capacidad se refiere a la computación subyacente en la que desplegarás el contenedor, junto con los requisitos de CPU y memoria. Es la infraestructura en la que se ejecutará el contenedor.",
+        "type": "list",
+        "default": "AWS Fargate",
+        "enum": ["AWS Fargate", "AWS EC2"],
+        "items": [{
+            "value": "AWS Fargate",
+            "label": "AWS Fargate es una tecnología que puede usar con Amazon ECS para ejecutar contenedores sin tener que administrar servidores o clústeres de instancias de Amazon EC2. Con Fargate ya no tendrá que aprovisionar, configurar ni escalar clústeres de máquinas virtuales para ejecutar contenedores"
+          },
+          {
+            "value": "AWS EC2",
+            "label": "Amazon EC2 es un servicio web que proporciona una capacidad informática redimensionable (literalmente, servidores en los centros de datos de Amazon) que puede utilizar para crear y alojar sus sistemas de software."
+          }
+        ]
+      }
+    }
+
+  },
+  "required": ["name", "dominio", "orchestration", "capacity"]
+}

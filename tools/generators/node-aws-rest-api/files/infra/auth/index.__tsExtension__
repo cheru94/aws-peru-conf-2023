@@ -1,0 +1,114 @@
+
+
+
+  
+  async function cognitoPoolInfra(cognitoName, userPoolClientName, googleIdentityName, callbackUrl, logoutUrl, clientIdGoogle, clientSecretGoogle, autoSignUp) {
+  
+    // Create the Cognito User Pool
+    const userPool = new aws.cognito.UserPool(
+      cognitoName,
+      {
+        autoVerifiedAttributes: ['email'],
+        emailConfiguration: {
+          replyToEmailAddress: process.env.REPLY_EMAIL_ADDRESS || '',
+          emailSendingAccount: 'COGNITO_DEFAULT',
+        },
+        mfaConfiguration: 'OPTIONAL',
+        softwareTokenMfaConfiguration: {
+          enabled: true,
+        },
+        accountRecoverySetting: {
+          recoveryMechanisms: [
+            {
+              name: 'verified_email',
+              priority: 1,
+            },
+            {
+              name: 'verified_phone_number',
+              priority: 2,
+            },
+          ],
+        },
+        adminCreateUserConfig: {
+          allowAdminCreateUserOnly: autoSignUp,
+  
+        },
+      }
+    );
+  
+    const googleProvider = new aws.cognito.IdentityProvider(
+      googleIdentityName,
+      {
+        providerName: 'Google',
+        userPoolId: userPool.id,
+        providerType: 'Google',
+        providerDetails: {
+          client_id: clientIdGoogle,
+          client_secret: clientSecretGoogle,
+          authorize_scopes: 'email profile openid',
+        },
+        attributeMapping: {
+          email: 'email',
+          family_name: 'family_name',
+          given_name: 'given_name',
+          username: 'sub',
+        },
+      }
+    );
+  
+    // Create a Cognito User Pool Client
+    const userPoolClient = new aws.cognito.UserPoolClient(
+      userPoolClientName,
+      {
+        accessTokenValidity: 8,
+        userPoolId: userPool.id,
+        callbackUrls: [callbackUrl],
+        logoutUrls: [logoutUrl],
+        explicitAuthFlows: [
+          'ALLOW_USER_SRP_AUTH',
+          'ALLOW_REFRESH_TOKEN_AUTH',
+          'ALLOW_CUSTOM_AUTH',
+        ],
+        allowedOauthFlowsUserPoolClient: true,
+        allowedOauthScopes: ['profile', 'openid', 'email'],
+        allowedOauthFlows: ['code'],
+        supportedIdentityProviders: ['COGNITO', googleProvider.providerName],
+      }
+    );
+  
+    return userPool;
+  }
+  
+  async function cognitoUserGroupInfra(userPoolId, name, key, precedence) {
+    new aws.cognito.UserGroup(`${appShortName}-${key}-user-group-${NODE_ENV}`, {
+      userPoolId,
+      description: name,
+      precedence: precedence,
+    });
+  }
+  
+  
+  async function createIdentityProvider() {
+    const userClientGoogleCredentials = {
+      clientId: process.env.GOOGLE_USER_CREDENTIALS_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_USER_CREDENTIALS_CLIENT_SECRET || '',
+    };
+  
+    const clientUserPool = await cognitoPoolInfra(
+      `${appShortName}-client-user-pool-${NODE_ENV}`,
+      `${appShortName}-client-user-pool-client-${NODE_ENV}`,
+      `${appShortName}-identity-google-provider-${NODE_ENV}`,
+      process.env.CALLBACK_WEB_APP_URL || 'http://localhost:4200',
+      process.env.LOGOUT_WEB_APP_URL || 'http://localhost:4200',
+      userClientGoogleCredentials.clientId,
+      userClientGoogleCredentials.clientSecret,
+      false,
+    );
+  
+    await cognitoUserGroupInfra(clientUserPool, 'Administrators', 'admin', 0);
+    await cognitoUserGroupInfra(clientUserPool, 'Executives', 'executives', 1);
+    await cognitoUserGroupInfra(clientUserPool, 'Managers', 'managers', 2);
+    await cognitoUserGroupInfra(clientUserPool, 'Operators', 'operators', 3);
+    await cognitoUserGroupInfra(clientUserPool, 'Viewers', 'viewers', 4);
+  }
+  

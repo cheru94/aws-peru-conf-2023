@@ -1,0 +1,10 @@
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { <%=directoryName%>RepositoriesModule } from '@<%=npmScope%>/<%=directoryImports%>repositories';
+
+@Module({
+  imports: [<%=directoryName%>RepositoriesModule, TypeOrmModule.forFeature([])],
+  providers: [],
+  exports: [],
+})
+export class <%=directoryName%>ServicesModule {}
