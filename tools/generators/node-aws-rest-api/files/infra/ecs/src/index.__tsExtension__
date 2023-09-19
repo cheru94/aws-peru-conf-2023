@@ -3,7 +3,7 @@ import * as aws from '@pulumi/aws';
 import * as awsx from '@pulumi/awsx';
 import * as dotenv from 'dotenv';
 
-const appName = <%=appName%>;
+const appName = <%=name%>;
 const directory = <%=directory%>;
 const appShortName = 'sandbox';
 

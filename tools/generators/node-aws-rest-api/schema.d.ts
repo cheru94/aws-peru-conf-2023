@@ -1,6 +1,6 @@
 export interface NodeAwsRestApiSchemaGenerator {
+  directory: string;
   name: string;
-  dominio: string;
   capacity: string;
   database?: string;
   cache?: boolean;

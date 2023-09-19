@@ -8,9 +8,9 @@
       "type": "string",
       "description": "Nombre del Servicio"
     },
-    "dominio": {
+    "directory": {
       "type": "string",
-      "description": "Nombre del bounded context"
+      "description": "Nombre del directory"
     },
     "storage": {
       "type": "boolean",
@@ -115,5 +115,5 @@
     }
 
   },
-  "required": ["name", "dominio", "orchestration", "capacity"]
+  "required": ["name", "directory", "orchestration", "capacity"]
 }

@@ -23,12 +23,12 @@ export default class NestHelper {
       controller: false,
       buildable: true
     });
-
+    const workspaceConfig = readProjectConfiguration(tree, libraryPath).sourceRoot || '';
     if (isGenerateFiles) {
       generateFiles(
         tree,
         joinPathFragments(basePath, `./files/libs/${name}/src`),
-        readProjectConfiguration(tree, libraryPath).sourceRoot,
+        workspaceConfig,
         schema
       );
     }

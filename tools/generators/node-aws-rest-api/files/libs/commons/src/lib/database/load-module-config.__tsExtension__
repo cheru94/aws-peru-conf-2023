@@ -1,0 +1,89 @@
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+import { DatabaseConfig } from "./database-config";
+
+export const loadModuleConfig = (env: any, migrations?: (Function | string)[]): DatabaseConfig => {
+
+    const moduleConfig: DatabaseConfig = {};
+    const databaseType = process.env.DATABASE_TYPE || env.database.databaseType ||  'memory';
+
+    switch (databaseType) {
+        case 'memory':
+            moduleConfig.useDatabaseFactory = () => setupMemory();
+            break;
+        case 'mysql':
+        case 'mariadb':
+            moduleConfig.useDatabaseFactory = () => setupMysql();
+            break;
+        case 'mssql':
+            moduleConfig.useDatabaseFactory = () => setupMssql();
+            break;
+        case 'postgres':
+            moduleConfig.useDatabaseFactory = () => setupPostgresql();
+            break;
+    }
+
+    function setupMemory(): TypeOrmModuleOptions {
+        return {
+            type: 'better-sqlite3',
+            database: ':memory:',
+            dropSchema: true,
+            synchronize: true,
+            autoLoadEntities: true,
+            logging: true,
+            migrationsRun: false,
+            migrations: migrations            
+        }
+    }
+
+    function setupMysql(): TypeOrmModuleOptions {
+        return {
+            type: 'mysql',
+            username: process.env.DATABASE_USERNAME || env.database?.username,
+            password: process.env.DATABASE_PASSWORD || env.database?.password,
+            database: process.env.DATABASE_NAME || env.database?.name,
+            host: process.env.DATABASE_HOST || env.database?.host,
+            port: process.env.DATABASE_PORT || env.database?.port || 3306,
+            synchronize: false,
+            autoLoadEntities: true,
+            logging: process.env.DATABASE_LOGGIN === 'true' || env.database?.loggin,
+            migrationsRun: process.env.DATABASE_RUN_MIGRATION === 'true' || env.database?.runMigrations,
+            migrations: migrations,
+            legacySpatialSupport: false,
+        }
+    }
+
+    function setupMssql(): TypeOrmModuleOptions {
+        return {
+            type: 'mssql',
+            username: process.env.DATABASE_USERNAME || env.database?.username,
+            password: process.env.DATABASE_PASSWORD || env.database?.password,
+            database: process.env.DATABASE_NAME || env.database?.name,
+            host: process.env.DATABASE_HOST || env.database?.host,
+            port: process.env.DATABASE_PORT || env.database?.port || 1433,
+            synchronize: false,
+            autoLoadEntities: true,
+            logging: process.env.DATABASE_LOGGIN === 'true' || env.database?.loggin,
+            migrationsRun: process.env.DATABASE_RUN_MIGRATION === 'true',
+            migrations: migrations,
+        }
+    }
+
+    function setupPostgresql(): TypeOrmModuleOptions {
+        return {
+            type: 'postgres',
+            username: process.env.DATABASE_USERNAME || env.database?.username,
+            password: process.env.DATABASE_PASSWORD || env.database?.password,
+            database: process.env.DATABASE_NAME || env.database?.name,
+            host: process.env.DATABASE_HOST || env.database?.host,
+            port: process.env.DATABASE_PORT || env.database?.port || 5432,
+            synchronize: false,
+            autoLoadEntities: true,
+            logging: process.env.DATABASE_LOGGIN === 'true' || env.database?.loggin,
+            migrationsRun: process.env.DATABASE_RUN_MIGRATION === 'true',
+            migrations: migrations,
+        }
+    }
+    return moduleConfig;
+}

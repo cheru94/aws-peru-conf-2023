@@ -1,0 +1,5 @@
+import { TypeOrmModuleOptions } from "@nestjs/typeorm";
+
+export class DatabaseConfig {
+  useDatabaseFactory?: () => Promise<TypeOrmModuleOptions> | TypeOrmModuleOptions;
+}

@@ -1,4 +1,4 @@
-import { ProjectConfiguration, Tree, addDependenciesToPackageJson, formatFiles, generateFiles, installPackagesTask, joinPathFragments, readProjectConfiguration, updateProjectConfiguration } from '@nrwl/devkit';
+import { ProjectConfiguration, Tree, addDependenciesToPackageJson, formatFiles, generateFiles, installPackagesTask, joinPathFragments, readProjectConfiguration, readWorkspaceConfiguration, updateProjectConfiguration } from '@nrwl/devkit';
 import { libraryGenerator } from '@nrwl/workspace/generators';
 import { applicationGenerator } from '@nrwl/nest';
 import FileHelper from './helpers/file.helper';
@@ -9,7 +9,15 @@ import NestHelper from './helpers/NEST.helper';
 /// ----------------------------------------------------------------------------
 /// ----------------------------------------------------------------------------
 export default async function (tree: Tree, schema: any) {
-  await libraryGenerator(tree, { name: schema.name });
+
+  schema.tsExtension = 'ts';
+  schema.npmScope = readWorkspaceConfiguration(tree).npmScope;
+  schema.directoryImports = schema.directory ? schema.directory + '/' : '';
+  schema.directoryFile = schema.directory ? schema.directory + '-' : '';
+  schema.directory = schema.directory ? schema.directory : '';
+  schema.directoryName =
+    schema.directory?.replace(/^./, (it) => it.toUpperCase()) || '';
+
   await formatFiles(tree);
   await build(tree, schema);
   return () => {
@@ -31,11 +39,11 @@ const build = async (tree, schema) => {
   await bootstrapSoftware(tree, schema, projectName, directory);
 
   // create the dockerfiles for the API
-  await dockerizeSoftware(tree, schema, projectName, directory);
+  // await dockerizeSoftware(tree, schema, projectName, directory);
 
   // choose the underlying infrastructure for running the REST API's
   // https://aws.amazon.com/es/getting-started/decision-guides/containers-on-aws-how-to-choose/
-  await bootstrapInfrastructure(tree, schema);
+  // await bootstrapInfrastructure(tree, schema);
 
   // create the AWS pipelines
   await createPipelines(tree, schema);
@@ -125,22 +133,24 @@ function isDryRun() {
 
 const bootstrapSoftware = async (tree, schema, projectName, directory) => {
   await addBaseProject(tree, schema, projectName);
-  await addHealthCheck(tree, schema, projectName, directory)
+  // await addHealthCheck(tree, schema, projectName, directory)
 }
 
 
 async function addBaseProject(tree: any, schema: any, projectName: string) {
+
   await applicationGenerator(tree, {
     name: schema.name,
     directory: schema.directory,
   });
 
 
+  const workspaceConfig = readProjectConfiguration(tree, projectName).sourceRoot || '';
 
   generateFiles(
     tree,
     joinPathFragments(__dirname, './files/apps/src'),
-    readProjectConfiguration(tree, projectName).sourceRoot,
+    workspaceConfig,
     schema
   );
 
@@ -161,7 +171,9 @@ async function addBaseProject(tree: any, schema: any, projectName: string) {
     {}
   );
 
+  // await libraryGenerator(tree, { name: schema.name });
   await addBaseLibraries(tree, schema);
+
 }
 
 async function addBaseLibraries(tree, schema) {
@@ -183,7 +195,7 @@ function addHealthCheck(tree, schema, projectName: string, directory) {
     },
     {}
   );
-  const projectConfig =  readProjectConfiguration(tree, projectName).sourceRoot || '';
+  const projectConfig = readProjectConfiguration(tree, projectName).sourceRoot || '';
 
   generateFiles(
     tree,
