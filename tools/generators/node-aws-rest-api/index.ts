@@ -217,20 +217,12 @@ async function addBaseProject(tree: any, schema: any, projectName: string) {
       '@nestjs/core': '^8.0.0',
       '@nestjs/platform-express': '^8.0.0',
       '@nestjs/swagger': '^5.2.1',
-      '@nestjs/typeorm': '^8.1.4',
-      '@nestjsx/crud': '^5.0.0-alpha.3',
-      '@nestjsx/crud-request': '^5.0.0-alpha.3',
-      '@nestjsx/crud-typeorm': '^5.0.0-alpha.3',
-      'better-sqlite3': '^7.5.1',
       'class-transformer': '^0.5.1',
       'class-validator': '^0.13.2',
       'core-js': '^3.6.5',
       dayjs: '^1.11.0',
-      mysql: '^2.18.1',
-      pg: '^8.4.0',
       'reflect-metadata': '^0.1.13',
       tslib: '^2.0.0',
-      typeorm: '^0.3.7',
       'swagger-ui-express': '^4.4.0',
     },
     {}
@@ -241,10 +233,7 @@ async function addBaseProject(tree: any, schema: any, projectName: string) {
 }
 
 async function addBaseLibraries(tree, schema) {
-  await NestHelper.libraryCreate('resources', tree, schema, __dirname);
   await NestHelper.libraryCreate('services', tree, schema, __dirname, true);
-  await NestHelper.libraryCreate('repositories', tree, schema, __dirname);
-  await NestHelper.libraryCreate('commons', tree, schema, __dirname, true);
 }
 
 

@@ -11,7 +11,7 @@ COPY . .
 
 ARG NODE_ENV
 
-RUN npx nx build backend-api --configuration=${NODE_ENV} --skip-nx-cache
+RUN npx nx build api-customer --configuration=${NODE_ENV} --skip-nx-cache
 
 FROM public.ecr.aws/docker/library/node:lts-slim as production
 
@@ -27,4 +27,4 @@ COPY --from=development /usr/src/app/dist ./dist
 
 EXPOSE 3333
 
-CMD ["node", "dist/apps/${appName}/${serviceName}/main.js"]
+CMD ["node", "dist/apps/api/customer/main.js"]

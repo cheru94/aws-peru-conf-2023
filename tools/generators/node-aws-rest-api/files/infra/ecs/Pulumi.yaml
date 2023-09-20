@@ -1,0 +1,5 @@
+name: monorepo-infra-api
+runtime: nodejs
+description: The infrastructure for Monorepo
+config:
+  monorepo-infra-api:NODE_ENV: dev

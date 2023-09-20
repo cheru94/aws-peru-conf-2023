@@ -1,3 +1,0 @@
-export * from './lib/<%=directoryFile%>commons.module';
-export * from './lib/database/database.module';
-export * from './lib/commons.config';

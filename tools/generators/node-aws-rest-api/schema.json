@@ -27,8 +27,12 @@
         "message": "Servicios de base de datos AWS",
         "type": "list",
         "default": "AWS RDS MySQL",
-        "enum": ["AWS RDS MySQL", "AWS RDS PostgreSQL", "AWS Aurora PostgreSQL", "AWS Aurora MySQL", "AWS DynamoDB"],
+        "enum": ["None", "AWS RDS MySQL", "AWS RDS PostgreSQL", "AWS Aurora PostgreSQL", "AWS Aurora MySQL", "AWS DynamoDB"],
         "items": [
+          {
+            "value": "None",
+            "label": ""
+          },
           {
             "value": "AWS RDS MySQL",
             "label": ""
