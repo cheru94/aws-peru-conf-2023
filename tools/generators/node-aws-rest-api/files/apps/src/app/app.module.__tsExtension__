@@ -9,7 +9,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [<%=directoryName%>ServicesModule,
   ConfigModule.forRoot({
       isGlobal: true,
-      load: [config],
+      load: [],
       envFilePath: ['./env/.env', `./env/.env.${process.env.NODE_ENV}`],
     })],
   controllers: [AppController],

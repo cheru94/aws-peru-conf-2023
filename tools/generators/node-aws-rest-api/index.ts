@@ -39,7 +39,7 @@ const build = async (tree, schema) => {
   await bootstrapSoftware(tree, schema, projectName, directory);
 
   // create the dockerfiles for the API
-  // await dockerizeSoftware(tree, schema, projectName, directory);
+  await dockerizeSoftware(tree, schema, projectName, directory);
 
   // choose the underlying infrastructure for running the REST API's
   // https://aws.amazon.com/es/getting-started/decision-guides/containers-on-aws-how-to-choose/
@@ -50,7 +50,6 @@ const build = async (tree, schema) => {
 }
 
 // INFRA AWS
-
 const bootstrapInfrastructure = async (tree, schema) => {
   const { capacity, orchestration } = paramCheck(tree, schema);
   await bootInfrastructure(tree, schema);
@@ -115,7 +114,7 @@ const buildInfrastructure = async (tree, schema) => {
   generateFiles(
     tree,
     joinPathFragments(__dirname, './files/infra/ecs'),
-    `./apps/infra-${schema.name}/${schema.domain}/`,
+    `./apps/infra-${schema.directory}`,
     schema
   );
 }
@@ -133,7 +132,7 @@ function isDryRun() {
 
 const bootstrapSoftware = async (tree, schema, projectName, directory) => {
   await addBaseProject(tree, schema, projectName);
-  // await addHealthCheck(tree, schema, projectName, directory)
+  await addHealthCheck(tree, schema, projectName, directory)
 }
 
 
@@ -162,16 +161,25 @@ async function addBaseProject(tree: any, schema: any, projectName: string) {
       '@nestjs/core': '^8.0.0',
       '@nestjs/platform-express': '^8.0.0',
       '@nestjs/swagger': '^5.2.1',
+      '@nestjs/typeorm': '^8.1.4',
+      '@nestjsx/crud': '^5.0.0-alpha.3',
+      '@nestjsx/crud-request': '^5.0.0-alpha.3',
+      '@nestjsx/crud-typeorm': '^5.0.0-alpha.3',
+      'better-sqlite3': '^7.5.1',
       'class-transformer': '^0.5.1',
       'class-validator': '^0.13.2',
       'core-js': '^3.6.5',
+      dayjs: '^1.11.0',
+      mysql: '^2.18.1',
+      pg: '^8.4.0',
       'reflect-metadata': '^0.1.13',
+      tslib: '^2.0.0',
+      typeorm: '^0.3.7',
       'swagger-ui-express': '^4.4.0',
     },
     {}
   );
 
-  // await libraryGenerator(tree, { name: schema.name });
   await addBaseLibraries(tree, schema);
 
 }
@@ -184,8 +192,8 @@ async function addBaseLibraries(tree, schema) {
 }
 
 
-function addHealthCheck(tree, schema, projectName: string, directory) {
-  const root = readProjectConfiguration(tree, projectName).sourceRoot;
+function addHealthCheck(tree, schema, projectName, directory) {
+  const root = readProjectConfiguration(tree, projectName).sourceRoot || '';
 
   addDependenciesToPackageJson(
     tree,
@@ -195,12 +203,11 @@ function addHealthCheck(tree, schema, projectName: string, directory) {
     },
     {}
   );
-  const projectConfig = readProjectConfiguration(tree, projectName).sourceRoot || '';
 
   generateFiles(
     tree,
     joinPathFragments(__dirname, './files/apps/health-check/apps/src'),
-    projectConfig,
+    root,
     schema
   );
 
@@ -213,7 +220,7 @@ function addHealthCheck(tree, schema, projectName: string, directory) {
 
   FileHelper.replaceExportsIndex(
     tree,
-    `libs/${directory}services/src/index.ts`,
+    `libs/${directory}/services/src/index.ts`,
     `export * from './lib/health/health.service';`
   );
 
@@ -235,25 +242,25 @@ function addHealthCheck(tree, schema, projectName: string, directory) {
 
   FileHelper.addImport(
     tree,
-    `libs/${directory}services/src/lib/${schema.directory}-services.module.ts`,
+    `libs/${directory}/services/src/lib/${schema.directory}-services.module.ts`,
     `import { HealthCheckService } from './health/health.service';`
   );
 
   FileHelper.addImport(
     tree,
-    `libs/${directory}services/src/lib/${schema.directory}-services.module.ts`,
+    `libs/${directory}/services/src/lib/${schema.directory}-services.module.ts`,
     `import { TerminusModule } from '@nestjs/terminus';`
   );
 
   FileHelper.addImport(
     tree,
-    `libs/${directory}services/src/lib/${schema.directory}-services.module.ts`,
+    `libs/${directory}/services/src/lib/${schema.directory}-services.module.ts`,
     `import { HttpModule } from '@nestjs/axios';`
   );
 
   FileHelper.addElementToModule(
     tree,
-    `libs/${directory}services/src/lib/${schema.directory}-services.module.ts`,
+    `libs/${directory}/services/src/lib/${schema.directory}-services.module.ts`,
     'TerminusModule',
     'imports',
     '\r'
@@ -261,7 +268,7 @@ function addHealthCheck(tree, schema, projectName: string, directory) {
 
   FileHelper.addElementToModule(
     tree,
-    `libs/${directory}services/src/lib/${schema.directory}-services.module.ts`,
+    `libs/${directory}/services/src/lib/${schema.directory}-services.module.ts`,
     'HttpModule',
     'imports',
     '\r'
@@ -269,14 +276,14 @@ function addHealthCheck(tree, schema, projectName: string, directory) {
 
   FileHelper.addElementToModule(
     tree,
-    `libs/${directory}services/src/lib/${schema.directory}-services.module.ts`,
+    `libs/${directory}/services/src/lib/${schema.directory}-services.module.ts`,
     'HealthCheckService',
     'providers'
   );
 
   FileHelper.addElementToModule(
     tree,
-    `libs/${directory}services/src/lib/${schema.directory}-services.module.ts`,
+    `libs/${directory}/services/src/lib/${schema.directory}-services.module.ts`,
     'HealthCheckService',
     'exports'
   );
@@ -288,11 +295,11 @@ function dockerizeSoftware(tree, schema, projectName, directory) {
   generateFiles(
     tree,
     joinPathFragments(__dirname, `./files/docker/`),
-    directory,
+    `apps/${schema.directory}/${schema.name}/`,
     schema
   );
 
-  const actualProjectConfig = readProjectConfiguration(tree, projectName);
+  const actualProjectConfig: any = readProjectConfiguration(tree, projectName) || '';
   const latestProjectConfig: ProjectConfiguration = {
     ...actualProjectConfig,
     targets: {

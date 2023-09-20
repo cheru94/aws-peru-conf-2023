@@ -27,4 +27,4 @@ COPY --from=development /usr/src/app/dist ./dist
 
 EXPOSE 3333
 
-CMD ["node", "dist/apps/backend/api/main.js"]
+CMD ["node", "dist/apps/${appName}/${serviceName}/main.js"]
