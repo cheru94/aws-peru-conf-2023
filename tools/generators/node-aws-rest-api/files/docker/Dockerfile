@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/node:lts-slim as development
+FROM --platform=linux/amd64 public.ecr.aws/docker/library/node:lts-slim as development
 
 
 WORKDIR /usr/src/app
@@ -13,7 +13,7 @@ ARG NODE_ENV
 
 RUN npx nx build api-customer --configuration=${NODE_ENV} --skip-nx-cache
 
-FROM public.ecr.aws/docker/library/node:lts-slim as production
+FROM  --platform=linux/amd64 public.ecr.aws/docker/library/node:lts-slim as production
 
 WORKDIR /usr/src/app
 
