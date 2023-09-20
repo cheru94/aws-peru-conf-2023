@@ -43,7 +43,7 @@ const build = async (tree, schema) => {
 
   // choose the underlying infrastructure for running the REST API's
   // https://aws.amazon.com/es/getting-started/decision-guides/containers-on-aws-how-to-choose/
-  // await bootstrapInfrastructure(tree, schema);
+  await bootstrapInfrastructure(tree, schema);
 
   // create the AWS pipelines
   await createPipelines(tree, schema);
@@ -94,6 +94,8 @@ const bootInfrastructure = async (tree, schema) => {
   if (isDryRun()) {
     liftUpPulumiProjectCommand += ' --dry-run';
     addDependenciesCommand += ' --dry-run';
+    addDependenciesCommand += ' --verbose';
+    liftUpPulumiProjectCommand += ' --verbose';
   }
 
   console.debug('Adding pulumi dependencies...');
@@ -101,6 +103,16 @@ const bootInfrastructure = async (tree, schema) => {
 
   console.debug('Running pulumi generator...');
   await NxHelper.execCliCommand(liftUpPulumiProjectCommand);
+
+  addDependenciesToPackageJson(
+    tree,
+    {
+      "@pulumi/aws": "^5.23.0",
+      "@pulumi/awsx": "1.0.5",
+      "@pulumi/pulumi": "^3.48.0",
+    },
+    {}
+  );
 
 }
 

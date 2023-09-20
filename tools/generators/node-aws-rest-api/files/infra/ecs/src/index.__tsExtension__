@@ -3,14 +3,11 @@ import * as aws from '@pulumi/aws';
 import * as awsx from '@pulumi/awsx';
 import * as dotenv from 'dotenv';
 
-const appName = <%=name%>;
-const directory = <%=directory%>;
-const appShortName = 'sandbox';
+const appName = '<%=name%>';
+const directory = '<%=directory%>';
 
 const config = new pulumi.Config();
 const NODE_ENV = config.require('NODE_ENV');
-
-dotenv.config({ path: `../../env/.env.${NODE_ENV}` }).parsed;
 
 async function init() {
  
@@ -87,65 +84,6 @@ async function containerECSFargate() {
   const executionECSRole = {
     roleArn: ecsRole.arn,
   };
-
-  const lambdaS3Policy = new aws.iam.Policy(
-    `${appName}-s3Policy-${NODE_ENV}`,
-    {
-      description: 'IAM policy for ECS Fargate to interact with S3',
-      path: '/',
-      policy: fileManagerBucket.arn.apply(
-        (bucketArn) => `{
-    "Version": "2012-10-17",
-    "Statement": [
-      {
-        "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject"],
-        "Resource": "${bucketArn}/*",
-        "Effect": "Allow"
-      }
-    ]}`
-      ),
-    }
-  );
-
-  const secretsManagerPolicy = new aws.iam.Policy(
-    `${appName}-secretsManagerPolicy-${NODE_ENV}`,
-    {
-      description: 'IAM policy for ECS Fargate to interact with Secrets Manager',
-      path: '/',
-      policy: `{
-        "Version": "2012-10-17",
-        "Statement": [
-          {
-            "Action": ["secretsmanager:GetSecretValue"],
-            "Resource": "*",
-            "Effect": "Allow"
-          }
-        ]
-      }`,
-    }
-  );
-
-  new aws.iam.RolePolicyAttachment(`${appName}-s3PolicyAtch-${NODE_ENV}`, {
-    role: ecsRole.name,
-    policyArn: lambdaS3Policy.arn,
-  });
-
-
-  new aws.iam.RolePolicyAttachment(
-    `${appName}-snsFullAccessPolicyAtch-${NODE_ENV}`,
-    {
-      role: ecsRole.name,
-      policyArn: aws.iam.ManagedPolicy.AmazonSNSFullAccess,
-    }
-  );
-
-  new aws.iam.RolePolicyAttachment(
-    `${appName}-secretsManagerPolicyAtch-${NODE_ENV}`,
-    {
-      role: ecsRole.name,
-      policyArn: secretsManagerPolicy.arn,
-    }
-  );
 
   const taskRole = {
     roleArn: ecsRole.arn,

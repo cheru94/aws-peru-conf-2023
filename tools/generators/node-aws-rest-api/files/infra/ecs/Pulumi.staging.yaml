@@ -1,5 +1,5 @@
-name: monorepo-infra-backend
+name: monorepo-infra-api
 runtime: nodejs
 description: The infrastructure for Monorepo
 config:
-  monorepo-infra-backend:NODE_ENV: staging
+  monorepo-infra-api:NODE_ENV: staging
