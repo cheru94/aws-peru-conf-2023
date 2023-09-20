@@ -43,16 +43,16 @@ const build = async (tree, schema) => {
 
   // choose the underlying infrastructure for running the REST API's
   // https://aws.amazon.com/es/getting-started/decision-guides/containers-on-aws-how-to-choose/
-  await bootstrapInfrastructure(tree, schema);
+  await bootstrapInfrastructure(tree, schema, projectName);
 
   // create the AWS pipelines
   await createPipelines(tree, schema);
 }
 
 // INFRA AWS
-const bootstrapInfrastructure = async (tree, schema) => {
+const bootstrapInfrastructure = async (tree, schema, projectName) => {
   const { capacity, orchestration } = paramCheck(tree, schema);
-  await bootInfrastructure(tree, schema);
+  await bootInfrastructure(tree, schema, projectName);
   await buildInfrastructure(tree, schema);
 }
 
@@ -87,7 +87,7 @@ const orchestrationCheck = (tree, schema) => {
 
 
 // boot the infra lib
-const bootInfrastructure = async (tree, schema) => {
+const bootInfrastructure = async (tree, schema, projectName) => {
   let liftUpPulumiProjectCommand = `npx nx generate @wanews/nx-pulumi:init-standalone infra-${schema.directory} --no-interactive`;
   let addDependenciesCommand = 'npm i @wanews/nx-pulumi@^0.26.0 dotenv@^16.0.2';
 
@@ -114,6 +114,50 @@ const bootInfrastructure = async (tree, schema) => {
     {}
   );
 
+
+  const actualProjectConfig: any = readProjectConfiguration(tree, projectName) || '';
+  const latestProjectConfig: ProjectConfiguration = {
+    ...actualProjectConfig,
+    targets: {
+      ...actualProjectConfig.targets,
+      build: {
+        ...actualProjectConfig.targets.build,
+        options: {
+          ...actualProjectConfig.targets.build.options,
+          generatePackageJson: true,
+        },
+      },
+      "destroy:pulumi": {
+        executor: "@nrwl/workspace:run-commands",
+        options: {
+          commands: [
+            `pulumi destroy -C ./apps/${schema.directory}/ --yes`
+          ],
+          parallel: false
+        }
+      },
+      'preview:pulumi': {
+        executor: '@nrwl/workspace:run-commands',
+        options: {
+          commands: [
+            `pulumi preview -C ./apps/${schema.directory}/`,
+          ],
+          parallel: false,
+        },
+      },
+      'deploy:pulumi': {
+        executor: '@nrwl/workspace:run-commands',
+        options: {
+          commands: [
+            `pulumi up -C ./apps/${schema.directory}/ --yes`,
+          ],
+          parallel: false,
+        },
+      },
+    },
+  };
+
+  updateProjectConfiguration(tree, projectName, latestProjectConfig);
 }
 
 
