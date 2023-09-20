@@ -1,7 +1,6 @@
 import * as pulumi from '@pulumi/pulumi';
 import * as aws from '@pulumi/aws';
 import * as awsx from '@pulumi/awsx';
-import * as dotenv from 'dotenv';
 
 const appName = '<%=name%>';
 const directory = '<%=directory%>';
@@ -11,10 +10,10 @@ const NODE_ENV = config.require('NODE_ENV');
 
 async function init() {
  
-  await containerECSFargate();
+ await containerECSFargate();
 }
 
-init();
+ init();
 
 
 async function containerECSFargate() {
@@ -125,5 +124,5 @@ async function containerECSFargate() {
 
   });
 
-  return lb;
+  exports.dnsName = pulumi.interpolate`${lb.loadBalancer.dnsName}`;
 }

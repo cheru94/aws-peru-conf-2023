@@ -131,7 +131,7 @@ const bootInfrastructure = async (tree, schema, projectName) => {
         executor: "@nrwl/workspace:run-commands",
         options: {
           commands: [
-            `pulumi destroy -C ./apps/${schema.directory}/ --yes`
+            `pulumi destroy -C ./apps/infra-${schema.directory}/ --yes --stack=dev`
           ],
           parallel: false
         }
@@ -140,7 +140,7 @@ const bootInfrastructure = async (tree, schema, projectName) => {
         executor: '@nrwl/workspace:run-commands',
         options: {
           commands: [
-            `pulumi preview -C ./apps/${schema.directory}/`,
+            `pulumi preview -C ./apps/infra-${schema.directory}/ --stack=dev`,
           ],
           parallel: false,
         },
@@ -149,7 +149,7 @@ const bootInfrastructure = async (tree, schema, projectName) => {
         executor: '@nrwl/workspace:run-commands',
         options: {
           commands: [
-            `pulumi up -C ./apps/${schema.directory}/ --yes`,
+            `pulumi up -C ./apps/infra-${schema.directory}/ --yes --stack=dev `,
           ],
           parallel: false,
         },
