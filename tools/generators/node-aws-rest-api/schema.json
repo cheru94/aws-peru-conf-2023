@@ -20,52 +20,6 @@
       "type": "boolean",
       "description": "AWS Cognito as Authentication service"
     },
-    "database": {
-      "type": "string",
-      "description": "Servicios de base de datos AWS",
-      "x-prompt": {
-        "message": "Servicios de base de datos AWS",
-        "type": "list",
-        "default": "AWS RDS MySQL",
-        "enum": ["None", "AWS RDS MySQL", "AWS RDS PostgreSQL", "AWS Aurora PostgreSQL", "AWS Aurora MySQL", "AWS DynamoDB"],
-        "items": [
-          {
-            "value": "None",
-            "label": ""
-          },
-          {
-            "value": "AWS RDS MySQL",
-            "label": ""
-          },
-          {
-            "value": "AWS RDS MySQL",
-            "label": ""
-          },
-          {
-            "value": "AWS RDS MySQL",
-            "label": ""
-          },
-          {
-            "value": "AWS RDS PostgreSQL",
-            "label": ""
-
-          },
-          {
-            "value": "AWS Aurora PostgreSQL",
-            "label": ""
-
-          },
-          {
-            "value": "AWS Aurora MySQL",
-            "label": ""
-          },
-          {
-            "value": "AWS DynamoDB",
-            "label": ""
-          }
-        ]
-      }
-    },
     "cdn": {
       "type": "boolean",
       "description": "Servicio CDN de AWS Cloudfront"
